@@ -9,6 +9,7 @@ local radius = 5
 local wallbounce = 0.95 -- slow down after hitting wall
 local paddlebounce = 1.05 -- speed up after hitting paddle
 local dx,dy = math.random(-10,10), math.random(-10,10)
+dx = 20
 dy = 0 -- TODO remove. Just here for testing
  
 local dpadPlayerSprite = nil
@@ -107,6 +108,10 @@ ballSprite.update = function()
   end
 end
 
+ballSprite.collisionResponse = function(other)
+  return gfx.sprite.kCollisionTypeBounce
+end
+
 -- Create dpad-player sprite, and set up drawing functions
 dpadPlayerSprite = gfx.sprite:new()
 dpadPlayerSprite:setSize(radius, 10*radius)
@@ -133,6 +138,10 @@ dpadPlayerSprite.update = function()
   end
 end
 
+dpadPlayerSprite.collisionResponse = function(other)
+  return gfx.sprite.kCollisionTypeBounce
+end
+
 
 -- Create crank-player sprite, and set up drawing functions
 crankPlayerSprite = gfx.sprite:new()
@@ -157,4 +166,8 @@ crankPlayerSprite.update = function()
     normalizedCrankInput = math.min(0, normalizedCrankInput)
   end
   crankPlayerSprite:moveBy( 0, normalizedCrankInput )
+end
+
+crankPlayerSprite.collisionResponse = function(other)
+  return gfx.sprite.kCollisionTypeBounce
 end
