@@ -6,9 +6,11 @@ gfx = playdate.graphics
 
 local ballSprite = nil
 local radius = 5
-local wallbounce = 0.95
+local wallbounce = 0.95 -- slow down after hitting wall
+local paddlebounce = 1.05 -- speed up after hitting paddle
 local dx,dy = math.random(-10,10), math.random(-10,10)
-
+dy = 0 -- TODO remove. Just here for testing
+ 
 local dpadPlayerSprite = nil
 local crankPlayerSprite = nil
 
@@ -30,6 +32,7 @@ gfx.setBackgroundColor(gfx.kColorWhite)
 ballSprite = gfx.sprite:new()
 ballSprite:setSize(2*radius+1, 2*radius+1)
 ballSprite:moveTo(200,120)
+ballSprite:setCollideRect( 0, 0, ballSprite:getSize() )
 ballSprite:addSprite()
 
 ballSprite.draw = function()
@@ -89,13 +92,25 @@ ballSprite.update = function()
     ballSprite.collided = true
   end
 
-  -- move to new position
-  ballSprite:moveTo(newx, newy)
+  -- move to new position -- but consider collisions
+  local actualX, actualY, cols, cols_len = ballSprite:moveWithCollisions(newx, newy)
+  for i=1, cols_len do
+    local col = cols[i]
+    -- not trying to be physics-accurate
+    print(dx)
+    if col.normal.x ~= 0 then -- hit something in the X direction
+      dx = -dx * paddlebounce
+    end
+    if col.normal.y ~= 0 then -- hit something in the Y direction
+      dy = -dy * paddlebounce
+    end
+  end
 end
 
 -- Create dpad-player sprite, and set up drawing functions
 dpadPlayerSprite = gfx.sprite:new()
 dpadPlayerSprite:setSize(radius, 10*radius)
+dpadPlayerSprite:setCollideRect( 0, 0, dpadPlayerSprite:getSize() )
 dpadPlayerSprite:moveTo(20,120)
 dpadPlayerSprite:addSprite()
 
@@ -122,6 +137,7 @@ end
 -- Create crank-player sprite, and set up drawing functions
 crankPlayerSprite = gfx.sprite:new()
 crankPlayerSprite:setSize(radius, 10*radius)
+crankPlayerSprite:setCollideRect( 0, 0, crankPlayerSprite:getSize() )
 crankPlayerSprite:moveTo(380,120)
 crankPlayerSprite:addSprite()
 
